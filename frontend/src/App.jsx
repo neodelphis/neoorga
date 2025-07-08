@@ -34,7 +34,7 @@ function App() {
 
     return (
         <>
-            <h1>Organigramme de l'Entreprise</h1>
+            <h1>Organigramme de l&apos;Entreprise</h1>
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             <pre>
