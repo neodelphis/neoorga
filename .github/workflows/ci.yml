@@ -1,0 +1,72 @@
+# Nom du workflow qui apparaîtra dans l'onglet "Actions" de GitHub
+name: NeoOrga CI Pipeline
+
+# Déclencheurs : quand exécuter ce workflow ?
+on:
+  # À chaque push sur la branche main
+  push:
+    branches: [ main ]
+  # Aussi à chaque création de Pull Request vers la branche main
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Premier job : vérifier la qualité du code Python
+  lint-backend:
+    name: Lint Backend Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9' # Doit correspondre à votre Dockerfile
+
+      - name: Installation des dépendances et du linter
+        # On se place dans le bon dossier avant d'exécuter les commandes
+        working-directory: ./backend
+        run: |
+          pip install -r requirements.txt
+          pip install flake8
+
+      - name: Lancer le linter Flake8
+        working-directory: ./backend
+        run: |
+          # Vérifie la syntaxe et les erreurs bloquantes. Le build échouera si des erreurs sont trouvées.
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+  # Deuxième job : construire et pousser les images Docker
+  build-and-push-images:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    # Ce job ne s'exécute que si le job 'lint-backend' a réussi
+    needs: lint-backend
+    # On ne pousse les images que sur un push direct sur 'main', pas sur les PRs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Connexion au Registre de Conteneurs GitHub (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }} # Votre nom d'utilisateur GitHub
+          password: ${{ secrets.GITHUB_TOKEN }} # Secret généré automatiquement par GitHub
+
+      - name: Construire et pousser les images
+        # Cette action va chercher les Dockerfile et les construire
+        uses: docker/build-push-action@v5
+        with:
+          context: . # Contexte global, il trouvera les Dockerfiles dans backend/, frontend/, etc.
+          push: true
+          # Crée des tags pour chaque service basés sur le nom du dossier
+          # Ex: ghcr.io/votre-user/votre-repo/backend:latest
+          tags: |
+            ghcr.io/${{ github.repository }}/backend:latest
+            ghcr.io/${{ github.repository }}/frontend:latest
+            ghcr.io/${{ github.repository }}/nginx:latest
+
