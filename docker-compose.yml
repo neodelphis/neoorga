@@ -1,0 +1,51 @@
+services:
+  # Service de base de données PostgreSQL
+  db:
+    image: postgres:14-alpine
+    container_name: neoorga-db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: neoorga_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      # Exposer le port pour un accès direct si besoin (ex: avec DBeaver)
+      - "5433:5432"
+
+  # Service Backend (API Python/Flask)
+  backend:
+    build: ./backend
+    container_name: neoorga-backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://user:password@db:5432/neoorga_db
+    volumes:
+      # Montage du code source pour le développement live
+      - ./backend:/app
+
+  # Service Frontend (React)
+  frontend:
+    build: ./frontend
+    container_name: neoorga-frontend
+    restart: always
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  # Reverse Proxy Nginx
+  nginx:
+    build: ./nginx
+    container_name: neoorga-nginx
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres-data:

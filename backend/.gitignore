@@ -1,0 +1,27 @@
+# Fichiers de bytecode Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environnements virtuels
+venv/
+env/
+.venv/
+
+# Artefacts de packaging et de distribution
+build/
+dist/
+*.egg-info/
+
+# Dossier d'instance Flask (contient souvent des configurations ou DB locales)
+instance/
+
+# Cache et rapports de test
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Cache Mypy
+.mypy_cache/
+

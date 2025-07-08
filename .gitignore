@@ -1,0 +1,18 @@
+# Fichiers générés par les systèmes d'exploitation
+.DS_Store
+Thumbs.db
+
+# Fichiers générés par les éditeurs de code et IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Fichiers d'environnement
+# Ne jamais commiter les secrets !
+.env
+.env.*
+
+# Fichiers de log
+*.log
+

@@ -1,0 +1,16 @@
+#root {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+}
+
+pre {
+    text-align: left;
+    background: #f4f4f4;
+    padding: 1rem;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    /* Ensures long lines wrap */
+    word-wrap: break-word;
+}
