@@ -57,16 +57,23 @@ jobs:
           username: ${{ github.actor }} # Votre nom d'utilisateur GitHub
           password: ${{ secrets.GITHUB_TOKEN }} # Secret généré automatiquement par GitHub
 
-      - name: Construire et pousser les images
-        # Cette action va chercher les Dockerfile et les construire
+      - name: Construire et pousser l'image backend
         uses: docker/build-push-action@v5
         with:
-          context: . # Contexte global, il trouvera les Dockerfiles dans backend/, frontend/, etc.
+          context: ./backend
           push: true
-          # Crée des tags pour chaque service basés sur le nom du dossier
-          # Ex: ghcr.io/votre-user/votre-repo/backend:latest
-          tags: |
-            ghcr.io/${{ github.repository }}/backend:latest
-            ghcr.io/${{ github.repository }}/frontend:latest
-            ghcr.io/${{ github.repository }}/nginx:latest
+          tags: ghcr.io/${{ github.repository }}/backend:latest
 
+      - name: Construire et pousser l'image frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ghcr.io/${{ github.repository }}/frontend:latest
+
+      - name: Construire et pousser l'image nginx
+        uses: docker/build-push-action@v5
+        with:
+          context: ./nginx
+          push: true
+          tags: ghcr.io/${{ github.repository }}/nginx:latest
