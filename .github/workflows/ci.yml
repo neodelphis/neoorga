@@ -46,6 +46,10 @@ jobs:
     # On ne pousse les images que sur un push direct sur 'main', pas sur les PRs
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
+    permissions:
+      contents: read # Nécessaire pour le checkout du code (actions/checkout)
+      packages: write # Nécessaire pour pousser des images sur le GitHub Container Registry
+
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
