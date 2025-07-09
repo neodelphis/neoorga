@@ -1,5 +1,6 @@
 # Ce fichier est optimisé pour la production.
 # Il ne "build" rien, il utilise les images déjà construites par la CI.
+# Il charge automatiquement les variables depuis un fichier .env situé dans le même répertoire.
 
 services:
   # Service de base de données PostgreSQL
@@ -8,32 +9,29 @@ services:
     container_name: neoorga-db
     restart: always
     environment:
-      # IMPORTANT: En production, ces valeurs devraient être gérées
-      # via un fichier .env ou les secrets Docker, pas en clair ici.
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: neoorga_db
+      # Ces variables sont lues depuis le fichier .env
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    # Le port n'a pas besoin d'être exposé sur l'hôte en production,
-    # sauf si vous avez un besoin spécifique d'accès direct.
-    # ports:
-    #   - "5433:5432"
+    # Le port n'est pas exposé sur l'hôte, la communication se fait via le réseau Docker interne.
 
   # Service Backend (API Python/Flask)
   backend:
-    # On utilise l'image poussée sur GHCR par le pipeline
-    image: ghcr.io/neodelphis/neoorga/backend:latest
+    # On utilise l'image dont le nom est construit à partir de la variable du .env
+    image: ghcr.io/${GITHUB_REPO}/backend:latest
     container_name: neoorga-backend
     restart: always
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://user:password@db:5432/neoorga_db
+      # L'URL de la base de données est construite à partir des variables du .env
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 
   # Reverse Proxy Nginx (qui sert le frontend et proxy le backend)
   nginx:
-    image: ghcr.io/neodelphis/neoorga/nginx:latest
+    image: ghcr.io/${GITHUB_REPO}/nginx:latest
     container_name: neoorga-nginx
     restart: always
     ports:
@@ -43,4 +41,3 @@ services:
 
 volumes:
   postgres-data:
-
