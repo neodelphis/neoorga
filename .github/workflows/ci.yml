@@ -121,6 +121,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
             # Se placer dans le répertoire du projet sur le serveur
             # Assurez-vous que ce chemin existe et contient votre docker-compose.yml
