@@ -1,0 +1,46 @@
+# Ce fichier est optimisé pour la production.
+# Il ne "build" rien, il utilise les images déjà construites par la CI.
+
+services:
+  # Service de base de données PostgreSQL
+  db:
+    image: postgres:14-alpine
+    container_name: neoorga-db
+    restart: always
+    environment:
+      # IMPORTANT: En production, ces valeurs devraient être gérées
+      # via un fichier .env ou les secrets Docker, pas en clair ici.
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: neoorga_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    # Le port n'a pas besoin d'être exposé sur l'hôte en production,
+    # sauf si vous avez un besoin spécifique d'accès direct.
+    # ports:
+    #   - "5433:5432"
+
+  # Service Backend (API Python/Flask)
+  backend:
+    # On utilise l'image poussée sur GHCR par le pipeline
+    image: ghcr.io/neodelphis/neoorga/backend:latest
+    container_name: neoorga-backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/neoorga_db
+
+  # Reverse Proxy Nginx (qui sert le frontend et proxy le backend)
+  nginx:
+    image: ghcr.io/neodelphis/neoorga/nginx:latest
+    container_name: neoorga-nginx
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres-data:
+

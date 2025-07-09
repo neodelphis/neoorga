@@ -104,3 +104,36 @@ jobs:
           context: ./nginx
           push: true
           tags: ghcr.io/${{ github.repository }}/nginx:latest
+
+  # Quatrième job : déployer l'application sur le serveur
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    # Dépend du job de build, ne se lance que s'il réussit
+    needs: build-and-push-images
+    # S'exécute uniquement sur un push vers la branche main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Se placer dans le répertoire du projet sur le serveur
+            # Assurez-vous que ce chemin existe et contient votre docker-compose.yml
+            cd /home/debian/neoorga
+
+            # Connexion au GitHub Container Registry (GHCR)
+            echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Tirer les dernières versions des images en utilisant le fichier de prod
+            docker-compose -f docker-compose.prod.yml pull
+
+            # Relancer les services avec les nouvelles images en utilisant le fichier de prod
+            docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            # Nettoyer les anciennes images non utilisées pour libérer de l'espace
+            docker image prune -af
