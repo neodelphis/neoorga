@@ -16,6 +16,13 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     # Le port n'est pas exposé sur l'hôte, la communication se fait via le réseau Docker interne.
+    # Healthcheck pour s'assurer que Postgres est prêt avant que d'autres services ne démarrent
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # Service Backend (API Python/Flask)
   backend:
@@ -23,8 +30,10 @@ services:
     image: ghcr.io/${GITHUB_REPO}/backend:latest
     container_name: neoorga-backend
     restart: always
+    # Utilisation de la forme longue pour attendre que le healthcheck de la DB soit "healthy"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       # L'URL de la base de données est construite à partir des variables du .env
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}

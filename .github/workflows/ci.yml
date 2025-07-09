@@ -131,10 +131,10 @@ jobs:
             echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             # Tirer les dernières versions des images en utilisant le fichier de prod
-            docker-compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml pull
 
             # Relancer les services avec les nouvelles images en utilisant le fichier de prod
-            docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
 
             # Nettoyer les anciennes images non utilisées pour libérer de l'espace
             docker image prune -af
