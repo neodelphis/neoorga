@@ -91,17 +91,13 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}/backend:latest
 
-      - name: Construire et pousser l'image frontend
+      - name: Construire et pousser l'image Nginx (avec le frontend intégré)
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
-          push: true
-          tags: ghcr.io/${{ github.repository }}/frontend:latest
-
-      - name: Construire et pousser l'image nginx
-        uses: docker/build-push-action@v5
-        with:
-          context: ./nginx
+          # Le contexte est la racine du projet pour accéder aux dossiers frontend/ et nginx/
+          context: .
+          # On spécifie le Dockerfile de production
+          file: ./nginx/Dockerfile.prod
           push: true
           tags: ghcr.io/${{ github.repository }}/nginx:latest
 
