@@ -99,14 +99,14 @@ function App() {
             })
             .catch(error => {
                 console.error("Fetch error:", error);
-                setError("Impossible de charger les données de l'organigramme.");
+                setError("Impossible de charger les données de l&apos;organigramme.");
             })
             .finally(() => {
                 setLoading(false);
             });
     }, [setNodes, setEdges]); // Dépendances du useEffect
 
-    if (loading) return <div>Chargement de l'organigramme...</div>;
+    if (loading) return <div>Chargement de l&apos;organigramme...</div>;
     if (error) return <div style={{ color: 'red' }}>Erreur : {error}</div>;
 
     return (
