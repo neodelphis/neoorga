@@ -45,12 +45,12 @@ def initialize_db():
             ''')
             cur.execute('''
                 INSERT INTO employees (id, name, position, manager_id) VALUES
-                (1, 'Alice CEO', 'CEO', NULL),
-                (2, 'Bob CTO', 'CTO', 1),
-                (3, 'Charlie COO', 'COO', 1),
-                (4, 'David Lead Dev', 'Lead Developer', 2),
-                (5, 'Eve Developer', 'Developer', 4),
-                (6, 'Frank Ops Lead', 'Operations Lead', 3);
+                (1, 'Jean Dupont', 'Maire', NULL),
+                (2, 'Marie Martin', 'Directrice Générale des Services', 1),
+                (3, 'Luc Bernard', 'Directeur de Cabinet', 1),
+                (4, 'Sophie Dubois', 'Directrice des Services Techniques', 2),
+                (5, 'Paul Robert', 'Responsable Urbanisme', 4),
+                (6, 'Chloé Petit', 'Chargée de Communication', 3);
             ''')
             conn.commit()
             print("Database initialized successfully.")
