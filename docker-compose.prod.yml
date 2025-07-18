@@ -43,10 +43,15 @@ services:
     image: ghcr.io/${GITHUB_REPO}/nginx:latest
     container_name: neoorga-nginx
     restart: always
-    ports:
-      - "80:80"
     depends_on:
       - backend
+    networks:
+      - default
+      - proxy-net
 
 volumes:
   postgres-data:
+
+networks:
+  proxy-net:
+    external: true
