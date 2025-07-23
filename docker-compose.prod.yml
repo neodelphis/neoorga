@@ -23,6 +23,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - neoorga-net
 
   # Service Backend (API Python/Flask)
   backend:
@@ -37,6 +39,8 @@ services:
     environment:
       # L'URL de la base de données est construite à partir des variables du .env
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    networks:
+      - neoorga-net
 
   # Reverse Proxy Nginx (qui sert le frontend et proxy le backend)
   nginx:
@@ -46,12 +50,14 @@ services:
     depends_on:
       - backend
     networks:
-      - default
+      - neoorga-net
       - proxy-net
 
 volumes:
   postgres-data:
 
 networks:
+  neoorga-net:
+    name: neoorga-net
   proxy-net:
     external: true
